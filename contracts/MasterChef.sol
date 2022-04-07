@@ -13,7 +13,7 @@ import "./SpookyToken.sol";
 // The other biggest change was the removal of the migration functions
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once BOO is sufficiently
+// will be transferred to a governance smart contract once wULX is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. 
@@ -26,13 +26,13 @@ contract MasterChef is Ownable {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of BOOs
+        // We do some fancy math here. Basically, any point in time, the amount of wULXs
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accBOOPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accwULXPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accBOOPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accwULXPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -41,21 +41,21 @@ contract MasterChef is Ownable {
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. BOOs to distribute per block.
-        uint256 lastRewardTime;  // Last block time that BOOs distribution occurs.
-        uint256 accBOOPerShare; // Accumulated BOOs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. wULXs to distribute per block.
+        uint256 lastRewardTime;  // Last block time that wULXs distribution occurs.
+        uint256 accwULXPerShare; // Accumulated wULXs per share, times 1e12. See below.
     }
 
     // such a spooky token!
-    SpookyToken public boo;
+    UltronToken public wULX;
 
     // Dev address.
     address public devaddr;
-    // boo tokens created per block.
-    uint256 public booPerSecond;
+    // wULX tokens created per block.
+    uint256 public wULXPerSecond;
 
-    // set a max boo per second, which can never be higher than 1 per second
-    uint256 public constant maxBooPerSecond = 1e18;
+    // set a max wULX per second, which can never be higher than 1 per second
+    uint256 public constant maxwULXPerSecond = 1e18;
 
     uint256 public constant MaxAllocPoint = 4000;
 
@@ -65,7 +65,7 @@ contract MasterChef is Ownable {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block time when boo mining starts.
+    // The block time when wULX mining starts.
     uint256 public immutable startTime;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -73,14 +73,14 @@ contract MasterChef is Ownable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(
-        SpookyToken _boo,
+        UltronToken _wULX,
         address _devaddr,
-        uint256 _booPerSecond,
+        uint256 _wULXPerSecond,
         uint256 _startTime
     ) {
-        boo = _boo;
+        wULX = _wULX;
         devaddr = _devaddr;
-        booPerSecond = _booPerSecond;
+        wULXPerSecond = _wULXPerSecond;
         startTime = _startTime;
     }
 
@@ -88,16 +88,16 @@ contract MasterChef is Ownable {
         return poolInfo.length;
     }
 
-    // Changes boo token reward per second, with a cap of maxboo per second
+    // Changes wULX token reward per second, with a cap of maxwULX per second
     // Good practice to update pools without messing up the contract
-    function setBooPerSecond(uint256 _booPerSecond) external onlyOwner {
-        require(_booPerSecond <= maxBooPerSecond, "setBooPerSecond: too many boos!");
+    function setwULXPerSecond(uint256 _wULXPerSecond) external onlyOwner {
+        require(_wULXPerSecond <= maxwULXPerSecond, "setwULXPerSecond: too many wULXs!");
 
-        // This MUST be done or pool rewards will be calculated with new boo per second
+        // This MUST be done or pool rewards will be calculated with new wULX per second
         // This could unfairly punish small pools that dont have frequent deposits/withdraws/harvests
         massUpdatePools(); 
 
-        booPerSecond = _booPerSecond;
+        wULXPerSecond = _wULXPerSecond;
     }
 
     function checkForDuplicate(IERC20 _lpToken) internal view {
@@ -122,11 +122,11 @@ contract MasterChef is Ownable {
             lpToken: _lpToken,
             allocPoint: _allocPoint,
             lastRewardTime: lastRewardTime,
-            accBOOPerShare: 0
+            accwULXPerShare: 0
         }));
     }
 
-    // Update the given pool's BOO allocation point. Can only be called by the owner.
+    // Update the given pool's wULX allocation point. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint) external onlyOwner {
         require(_allocPoint <= MaxAllocPoint, "add: too many alloc points!!");
 
@@ -145,18 +145,18 @@ contract MasterChef is Ownable {
         return _to - _from;
     }
 
-    // View function to see pending BOOs on frontend.
-    function pendingBOO(uint256 _pid, address _user) external view returns (uint256) {
+    // View function to see pending wULXs on frontend.
+    function pendingwULX(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accBOOPerShare = pool.accBOOPerShare;
+        uint256 accwULXPerShare = pool.accwULXPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardTime, block.timestamp);
-            uint256 booReward = multiplier.mul(booPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
-            accBOOPerShare = accBOOPerShare.add(booReward.mul(1e12).div(lpSupply));
+            uint256 wULXReward = multiplier.mul(wULXPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
+            accwULXPerShare = accwULXPerShare.add(wULXReward.mul(1e12).div(lpSupply));
         }
-        return user.amount.mul(accBOOPerShare).div(1e12).sub(user.rewardDebt);
+        return user.amount.mul(accwULXPerShare).div(1e12).sub(user.rewardDebt);
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -179,16 +179,16 @@ contract MasterChef is Ownable {
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardTime, block.timestamp);
-        uint256 booReward = multiplier.mul(booPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 wULXReward = multiplier.mul(wULXPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
 
-        boo.mint(devaddr, booReward.div(10));
-        boo.mint(address(this), booReward);
+        wULX.mint(devaddr, wULXReward.div(10));
+        wULX.mint(address(this), wULXReward);
 
-        pool.accBOOPerShare = pool.accBOOPerShare.add(booReward.mul(1e12).div(lpSupply));
+        pool.accwULXPerShare = pool.accwULXPerShare.add(wULXReward.mul(1e12).div(lpSupply));
         pool.lastRewardTime = block.timestamp;
     }
 
-    // Deposit LP tokens to MasterChef for BOO allocation.
+    // Deposit LP tokens to MasterChef for wULX allocation.
     function deposit(uint256 _pid, uint256 _amount) public {
 
         PoolInfo storage pool = poolInfo[_pid];
@@ -196,13 +196,13 @@ contract MasterChef is Ownable {
 
         updatePool(_pid);
 
-        uint256 pending = user.amount.mul(pool.accBOOPerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accwULXPerShare).div(1e12).sub(user.rewardDebt);
 
         user.amount = user.amount.add(_amount);
-        user.rewardDebt = user.amount.mul(pool.accBOOPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accwULXPerShare).div(1e12);
 
         if(pending > 0) {
-            safeBOOTransfer(msg.sender, pending);
+            safewULXTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
 
@@ -218,13 +218,13 @@ contract MasterChef is Ownable {
 
         updatePool(_pid);
 
-        uint256 pending = user.amount.mul(pool.accBOOPerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accwULXPerShare).div(1e12).sub(user.rewardDebt);
 
         user.amount = user.amount.sub(_amount);
-        user.rewardDebt = user.amount.mul(pool.accBOOPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accwULXPerShare).div(1e12);
 
         if(pending > 0) {
-            safeBOOTransfer(msg.sender, pending);
+            safewULXTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
         
@@ -245,13 +245,13 @@ contract MasterChef is Ownable {
 
     }
 
-    // Safe boo transfer function, just in case if rounding error causes pool to not have enough BOOs.
-    function safeBOOTransfer(address _to, uint256 _amount) internal {
-        uint256 booBal = boo.balanceOf(address(this));
-        if (_amount > booBal) {
-            boo.transfer(_to, booBal);
+    // Safe wULX transfer function, just in case if rounding error causes pool to not have enough wULXs.
+    function safewULXTransfer(address _to, uint256 _amount) internal {
+        uint256 wULXBal = wULX.balanceOf(address(this));
+        if (_amount > wULXBal) {
+            wULX.transfer(_to, wULXBal);
         } else {
-            boo.transfer(_to, _amount);
+            wULX.transfer(_to, _amount);
         }
     }
 

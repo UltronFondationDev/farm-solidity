@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import "./OpenZeppelin/ERC20Permit.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SpookyToken is ERC20Permit, Ownable {
+contract UltronToken is ERC20Permit, Ownable {
 
-    constructor() ERC20("SpookyToken", "BOO") ERC20Permit("SpookyToken")
+    constructor() ERC20("UltronToken", "wULX") ERC20Permit("UltronToken")
     {
 
     }
