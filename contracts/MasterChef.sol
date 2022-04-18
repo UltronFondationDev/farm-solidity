@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import "./SpookyToken.sol"; 
+import "./UltronToken.sol"; 
 
 // The Spooky Garden is a fork of MasterChef by SushiSwap
 // The biggest change made is using per second instead of per block for rewards
