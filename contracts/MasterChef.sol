@@ -7,7 +7,7 @@ import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import "./UltronToken.sol"; 
 
-// The Spooky Garden is a fork of MasterChef by SushiSwap
+// The Ultron Garden is a fork of MasterChef by SushiSwap
 // The biggest change made is using per second instead of per block for rewards
 // This is due to Fantoms extremely inconsistent block times
 // The other biggest change was the removal of the migration functions
@@ -46,7 +46,7 @@ contract MasterChef is Ownable {
         uint256 accwULXPerShare; // Accumulated wULXs per share, times 1e12. See below.
     }
 
-    // such a spooky token!
+    // such a ultron token!
     UltronToken public wULX;
 
     // Dev address.
