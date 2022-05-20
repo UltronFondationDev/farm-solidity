@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import "./UltronToken.sol"; 
+import './IwULX.sol';
 
 // The Ultron Garden is a fork of MasterChef by SushiSwap
 // The biggest change made is using per second instead of per block for rewards
@@ -47,7 +47,7 @@ contract MasterChef is Ownable {
     }
 
     // such a ultron token!
-    UltronToken public wULX;
+    IwULX public wULX;
 
     // Dev address.
     address public devaddr;
@@ -73,7 +73,7 @@ contract MasterChef is Ownable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(
-        UltronToken _wULX,
+        IwULX _wULX,
         address _devaddr,
         uint256 _wULXPerSecond,
         uint256 _startTime
