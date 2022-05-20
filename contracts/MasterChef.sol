@@ -71,6 +71,8 @@ contract MasterChef is Ownable {
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
+    event LogUpdatePool(uint indexed pid, uint lastRewardTime, uint lpSupply, uint accBooPerShare);
+
 
     constructor(
         IwULX _wULX,
@@ -168,24 +170,23 @@ contract MasterChef is Ownable {
     }
 
     // Update reward variables of the given pool to be up-to-date.
-    function updatePool(uint256 _pid) public {
-        PoolInfo storage pool = poolInfo[_pid];
-        if (block.timestamp <= pool.lastRewardTime) {
-            return;
-        }
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (lpSupply == 0) {
+    function updatePool(uint256 _pid) public returns (PoolInfo memory pool) {
+        pool = poolInfo[_pid];
+        if (block.timestamp > pool.lastRewardTime) {
+            uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+            if (lpSupply > 0){
+                uint256 multiplier = getMultiplier(pool.lastRewardTime, block.timestamp);
+                uint256 wULXReward = multiplier.mul(wULXPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
+
+                wULX.mint(devaddr, wULXReward.div(10));
+                wULX.mint(address(this), wULXReward);
+
+                pool.accwULXPerShare = pool.accwULXPerShare.add(wULXReward.mul(1e12).div(lpSupply));
+            }
             pool.lastRewardTime = block.timestamp;
-            return;
+            poolInfo[_pid] = pool;
+            emit LogUpdatePool(_pid, pool.lastRewardTime, lpSupply, pool.accwULXPerShare);
         }
-        uint256 multiplier = getMultiplier(pool.lastRewardTime, block.timestamp);
-        uint256 wULXReward = multiplier.mul(wULXPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
-
-        wULX.mint(devaddr, wULXReward.div(10));
-        wULX.mint(address(this), wULXReward);
-
-        pool.accwULXPerShare = pool.accwULXPerShare.add(wULXReward.mul(1e12).div(lpSupply));
-        pool.lastRewardTime = block.timestamp;
     }
 
     // Deposit LP tokens to MasterChef for wULX allocation.
@@ -259,5 +260,33 @@ contract MasterChef is Ownable {
     function dev(address _devaddr) public {
         require(msg.sender == devaddr, "dev: wut?");
         devaddr = _devaddr;
+    }
+
+    /// @notice Batch harvest all rewards from all staked pools
+    /// @dev This function has an unbounded gas cost. Take care not to call it from other smart contracts if you don't know what you're doing.
+    function harvestAll() external {
+        uint256 length = poolInfo.length;
+        uint calc;
+        uint pending;
+        UserInfo storage user;
+        PoolInfo memory pool;
+        uint totalPending;
+        for (uint256 pid = 0; pid < length; ++pid) {
+            user = userInfo[pid][msg.sender];
+            if (user.amount > 0) {
+                pool = updatePool(pid);
+
+                calc = user.amount.mul(pool.accwULXPerShare).div(1e12);
+                pending = calc - user.rewardDebt;
+                user.rewardDebt = calc;
+
+                if(pending > 0) {
+                    totalPending+=pending;
+                }
+            }
+        }
+        if (totalPending > 0) {
+            safewULXTransfer(msg.sender, totalPending);
+        }
     }
 }
