@@ -9,7 +9,7 @@ import './IwULX.sol';
 
 // The Ultron Garden is a fork of MasterChef by SushiSwap
 // The biggest change made is using per second instead of per block for rewards
-// This is due to Fantoms extremely inconsistent block times
+// This is due to Ultrons extremely inconsistent block times
 // The other biggest change was the removal of the migration functions
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
