@@ -10,7 +10,5 @@ task("deploy", "Deploy MasterChef")
       const masterChef = await MasterChef.deploy(taskArgs.wulx, taskArgs.devaddr, taskArgs.persec, taskArgs.starttime);
 
       await masterChef.deployed();
-      MasterChefAddress = masterChef.address
       console.log("MasterChef deployed to:", masterChef.address);
-      console.log(MasterChefAddress)
   });
