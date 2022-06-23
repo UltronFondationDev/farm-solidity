@@ -16,3 +16,4 @@ cache/
 artifacts/
 .env
 .deps/
+package-lock.json
