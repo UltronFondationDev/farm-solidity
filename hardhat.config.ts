@@ -44,7 +44,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 1337,
       forking: {
-        url: "https://main-light.eth.linkpool.io",
+        url: "https://eth-mainnet.g.alchemy.com/v2/i2LgfhBeI-JidguSNlFuToo7kPSkFBPb",
         blockNumber: 11095000,
       },
       gas: 2100000,
