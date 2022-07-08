@@ -47,7 +47,7 @@ contract MasterChef is Ownable {
     }
 
     // such a ultron token!
-    IwULX public wULX;
+    address public wULX;
 
     // Dev address.
     address public devaddr;
@@ -73,9 +73,8 @@ contract MasterChef is Ownable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event LogUpdatePool(uint indexed pid, uint lastRewardTime, uint lpSupply, uint accBooPerShare);
 
-
     constructor(
-        IwULX _wULX,
+        address _wULX,
         address _devaddr,
         uint256 _wULXPerSecond,
         uint256 _startTime
@@ -84,6 +83,24 @@ contract MasterChef is Ownable {
         devaddr = _devaddr;
         wULXPerSecond = _wULXPerSecond;
         startTime = _startTime;
+    }
+
+    function _mintWETH(address _to, uint256 amount) private {
+        IwULX(wULX).mint(_to, amount);
+    }
+
+    function _transferWETH(address _to, uint256 amount) private {
+        IwULX(wULX).transfer(_to, amount);
+    }
+
+    // Safe wULX transfer function, just in case if rounding error causes pool to not have enough wULXs.
+    function _safewULXTransfer(address _to, uint256 _amount) internal {
+        uint256 wULXBal = IwULX(wULX).balanceOf(address(this));
+        if (_amount > wULXBal) {
+            _transferWETH(_to, wULXBal);
+        } else {
+            _transferWETH(_to, _amount);
+        }
     }
 
     function poolLength() external view returns (uint256) {
@@ -107,7 +124,6 @@ contract MasterChef is Ownable {
         for (uint256 _pid = 0; _pid < length; _pid++) {
             require(poolInfo[_pid].lpToken != _lpToken, "add: pool already exists!!!!");
         }
-
     }
 
     // Add a new lp to the pool. Can only be called by the owner.
@@ -174,12 +190,12 @@ contract MasterChef is Ownable {
         pool = poolInfo[_pid];
         if (block.timestamp > pool.lastRewardTime) {
             uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-            if (lpSupply > 0){
+            if (lpSupply > 0) {
                 uint256 multiplier = getMultiplier(pool.lastRewardTime, block.timestamp);
                 uint256 wULXReward = multiplier.mul(wULXPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
 
-                wULX.mint(devaddr, wULXReward.div(10));
-                wULX.mint(address(this), wULXReward);
+                _mintWETH(devaddr, wULXReward.div(10));
+                _mintWETH(address(this), wULXReward);
 
                 pool.accwULXPerShare = pool.accwULXPerShare.add(wULXReward.mul(1e12).div(lpSupply));
             }
@@ -203,7 +219,7 @@ contract MasterChef is Ownable {
         user.rewardDebt = user.amount.mul(pool.accwULXPerShare).div(1e12);
 
         if(pending > 0) {
-            safewULXTransfer(msg.sender, pending);
+            _safewULXTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
 
@@ -225,7 +241,7 @@ contract MasterChef is Ownable {
         user.rewardDebt = user.amount.mul(pool.accwULXPerShare).div(1e12);
 
         if(pending > 0) {
-            safewULXTransfer(msg.sender, pending);
+            _safewULXTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
         
@@ -243,17 +259,6 @@ contract MasterChef is Ownable {
 
         pool.lpToken.safeTransfer(address(msg.sender), oldUserAmount);
         emit EmergencyWithdraw(msg.sender, _pid, oldUserAmount);
-
-    }
-
-    // Safe wULX transfer function, just in case if rounding error causes pool to not have enough wULXs.
-    function safewULXTransfer(address _to, uint256 _amount) internal {
-        uint256 wULXBal = wULX.balanceOf(address(this));
-        if (_amount > wULXBal) {
-            wULX.transfer(_to, wULXBal);
-        } else {
-            wULX.transfer(_to, _amount);
-        }
     }
 
     // Update dev address by the previous dev.
@@ -286,7 +291,7 @@ contract MasterChef is Ownable {
             }
         }
         if (totalPending > 0) {
-            safewULXTransfer(msg.sender, totalPending);
+            _safewULXTransfer(msg.sender, totalPending);
         }
     }
 }
