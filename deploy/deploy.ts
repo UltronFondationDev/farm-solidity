@@ -28,12 +28,11 @@ task("add-pools", "Adding pools")
 
         const usdc = '0xFac94031AA8f09e2858F93974178fd70F276EAD1';
         const avax = '0xA066a85923dFB145B947EB4A74c6e0ad7CEAE193';
-        const dai = '0x9d40F4A04C737887a79902Caa7cE8003197D8B1C';
+        const dai =  '0x9d40F4A04C737887a79902Caa7cE8003197D8B1C';
         const wulx = '0xE2619ab40a445526B0AaDff944F994971d2EAc05';
         const shib = '0x29263214978Db13A1b1cA0381f58Ca7b2054588c';
 
         const lp0 = await factory.getPair(usdc, avax);
-        console.log(lp0)
         const lp1 = await factory.getPair(usdc, dai);
         const lp2 = await factory.getPair(usdc, wulx);
         const lp3 = await factory.getPair(usdc, shib);
@@ -52,7 +51,7 @@ task("add-pools", "Adding pools")
         const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
         
         for(let i:number = 0; i < alloc_points.length; i++) {
-            await masterChef.add(alloc_points[i], lps[i])
-            console.log(`Added pool ${alloc_points[i]} ${lps[i]}`)
+            await masterChef.add(alloc_points[i], lps[i], { gasLimit: 2000000 })
+            console.log(await masterChef.poolInfo(i))
         }
     });
