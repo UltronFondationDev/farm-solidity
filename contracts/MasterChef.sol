@@ -49,8 +49,6 @@ contract MasterChef is Ownable {
     // such a ultron token!
     address public wULX;
 
-    // Dev address.
-    address public devaddr;
     // wULX tokens created per block.
     uint256 public wULXPerSecond;
 
@@ -75,12 +73,10 @@ contract MasterChef is Ownable {
 
     constructor(
         address _wULX,
-        address _devaddr,
         uint256 _wULXPerSecond,
         uint256 _startTime
     ) {
         wULX = _wULX;
-        devaddr = _devaddr;
         wULXPerSecond = _wULXPerSecond;
         startTime = _startTime;
     }
@@ -194,7 +190,6 @@ contract MasterChef is Ownable {
                 uint256 multiplier = getMultiplier(pool.lastRewardTime, block.timestamp);
                 uint256 wULXReward = multiplier.mul(wULXPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
 
-                _mintWETH(devaddr, wULXReward.div(10));
                 _mintWETH(address(this), wULXReward);
 
                 pool.accwULXPerShare = pool.accwULXPerShare.add(wULXReward.mul(1e12).div(lpSupply));
@@ -259,12 +254,6 @@ contract MasterChef is Ownable {
 
         pool.lpToken.safeTransfer(address(msg.sender), oldUserAmount);
         emit EmergencyWithdraw(msg.sender, _pid, oldUserAmount);
-    }
-
-    // Update dev address by the previous dev.
-    function dev(address _devaddr) public {
-        require(msg.sender == devaddr, "dev: wut?");
-        devaddr = _devaddr;
     }
 
     /// @notice Batch harvest all rewards from all staked pools

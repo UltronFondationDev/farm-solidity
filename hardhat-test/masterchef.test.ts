@@ -34,7 +34,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         const blockBefore = await ethers.provider.getBlock(blockNumBefore);
         const timestampBefore = blockBefore.timestamp;
 
-        masterChef = await (await new MasterChef__factory(owner).deploy(weth.address, owner.address, ethers.utils.parseEther("0.0001"), timestampBefore)).deployed();
+        masterChef = await (await new MasterChef__factory(owner).deploy(weth.address, ethers.utils.parseEther("0.0001"), timestampBefore)).deployed();
         await weth.setMinter(masterChef.address);
 
         lp = await (await new ERC20Mock__factory(owner).deploy("LP", "LP", ethers.utils.parseEther("1000"))).deployed();
@@ -46,13 +46,6 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         const newPerSecond = ethers.utils.parseEther("0.1");
         await masterChef.connect(owner).setwULXPerSecond(newPerSecond);
         expect(newPerSecond).equals(await masterChef.wULXPerSecond());
-    });
-
-    it("Set dev address\n", async () => {
-        const newDevAddress = owner.address;
-        await expect(masterChef.connect(someAccount).dev(newDevAddress)).revertedWith("dev: wut?");
-        await masterChef.connect(owner).dev(newDevAddress);
-        expect(newDevAddress).equals(await masterChef.devaddr());
     });
 
     it("add lp token to pools\n", async () => {
@@ -107,7 +100,6 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
 
         let expected = (await masterChef.wULXPerSecond()).mul(time2 - time1)
         expect(expected).equals(await weth.balanceOf(masterChef.address))
-        expect(expected.div(10)).equals(await weth.balanceOf(owner.address))
         expect(expected).equals(await masterChef.connect(someAccount).pendingwULX(0, someAccount.address))
     }); 
 
@@ -143,7 +135,6 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
 
         const expected = (await masterChef.wULXPerSecond()).mul(time2 - time1)
         expect(expected).equals(await weth.balanceOf(masterChef.address))
-        expect(expected.div(10)).equals(await weth.balanceOf(owner.address))
         expect(expected).equals(await masterChef.connect(someAccount).pendingwULX(0, someAccount.address))
     
         const log3 = await masterChef.connect(someAccount).withdraw(0, transferAmount);
