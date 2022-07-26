@@ -1,18 +1,17 @@
 import { subtask, task, types } from "hardhat/config";
+import * as Helpers from './helpers';
 
 task("deploy", "Deploy MasterChef")
   .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
         const wulx = '0xE2619ab40a445526B0AaDff944F994971d2EAc05';
-        const developerAddress = signer.address; 
         const wulxPerSecond = ethers.utils.parseEther("6.12");
         const startTime = 0;
 
-        const masterChefFactory = await ethers.getContractFactory("MasterChef");
-        const masterChef = await masterChefFactory.deploy(wulx, developerAddress, wulxPerSecond, startTime);
+        const masterChefFactory = await ethers.getContractFactory("MasterChef", signer);
+        const masterChef = await (await masterChefFactory.deploy(wulx, wulxPerSecond, startTime)).deployed();
 
-        await masterChef.deployed();
         console.log("MasterChef deployed to:", masterChef.address);
     });
 
@@ -20,7 +19,7 @@ task("add-pools", "Adding pools")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0xc095B0cC5F7b10A78ed5FECE1798170c4acb671B';
+        const masterChefAddress = '0xF35a3AC174Fd9E64770595eEfecD4Dc337A58701';
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
         const factoryAddress = "0x58e103F46b99014e1A28113C7434fDB05e84Fb2a";
@@ -51,7 +50,8 @@ task("add-pools", "Adding pools")
         const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
         
         for(let i:number = 0; i < alloc_points.length; i++) {
-            await masterChef.add(alloc_points[i], lps[i], { gasLimit: 2000000 })
-            console.log(await masterChef.poolInfo(i))
+            await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
+            await Helpers.delay(4000);
+            console.log(await masterChef.poolInfo(i));
         }
     });
