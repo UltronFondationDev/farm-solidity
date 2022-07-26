@@ -19,10 +19,10 @@ task("add-pools", "Adding pools")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0xF35a3AC174Fd9E64770595eEfecD4Dc337A58701';
+        const masterChefAddress = '0x8F9a6bDF5e99980f895c9C83152c29fF2bb10b16';
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
-        const factoryAddress = "0x58e103F46b99014e1A28113C7434fDB05e84Fb2a";
+        const factoryAddress = "0x985Ed4C56a3d26457B577A7deE52fc1212DFb974";
         const factory = await ethers.getContractAt("UniswapV2Factory", factoryAddress, signer);
 
         const usdc = '0xFac94031AA8f09e2858F93974178fd70F276EAD1';
