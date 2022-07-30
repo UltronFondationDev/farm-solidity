@@ -1,3 +1,4 @@
+import { poll } from "ethers/lib/utils";
 import { subtask, task, types } from "hardhat/config";
 import * as Helpers from './helpers';
 
@@ -14,6 +15,37 @@ task("deploy", "Deploy MasterChef")
 
         console.log("MasterChef deployed to:", masterChef.address);
     });
+
+task('set-pool', "Changing pool's alloc point")
+    .setAction(async (taskArgs, {ethers}) => {
+        const signer = (await ethers.getSigners())[0];
+
+        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
+
+        const poolId = 7;
+        const allocPoint = 0;
+
+        await masterChef.set(poolId, allocPoint);
+        await Helpers.delay(4000);
+        console.log(await masterChef.poolInfo(poolId));
+});
+
+task('deposit', "Deposit")
+    .setAction(async (taskArgs, {ethers}) => {
+        const signer = (await ethers.getSigners())[0];
+
+        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
+
+        const lpAddress = '0x944086C14Ea9ee4dD6c887ca88B3521a4F2e2F83';
+        const lp = await ethers.getContractAt("UniswapV2ERC20", lpAddress, signer);
+        const poolBalance = await lp.balanceOf(signer.address);
+        const poolId = 7;
+
+        await lp.approve(masterChefAddress, poolBalance);
+        await masterChef.deposit(poolId, poolBalance);
+});
 
 task("add-pools", "Adding pools")
     .setAction(async (taskArgs, {ethers}) => {
@@ -65,4 +97,18 @@ task("add-pools", "Adding pools")
             await Helpers.delay(4000);
             console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
         }
+    });
+
+task("change-owner", "Transfer ownership")
+    .setAction(async (taskArgs, {ethers}) => {
+        const signer = (await ethers.getSigners())[0];
+
+        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
+
+        const owner = '0x4CE535D6E2D47690e33CA646972807BeB264dFBf';
+
+        await masterChef.transferOwnership(owner);
+        await Helpers.delay(4000);
+        console.log(await masterChef.owner())
     });
