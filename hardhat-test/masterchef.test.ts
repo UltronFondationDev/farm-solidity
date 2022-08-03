@@ -6,7 +6,7 @@ import { LogDescription } from "ethers/lib/utils";
 import * as helpers from "./helpers";
 import { BigNumber } from "ethers";
 
-describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
+describe("\x1b[33mMasterChef tests\x1b[0m", () => {
     const beforeTest = "\t";
     const colorGreen = "\x1b[32m";
     const colorBlue = "\x1b[36m";
@@ -40,7 +40,16 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         lp = await (await new ERC20Mock__factory(owner).deploy("LP", "LP", ethers.utils.parseEther("1000"))).deployed();
     });
 
-    it("setWULX per second\n", async () => {
+    it("isLpToken", async () => {
+        await expect(masterChef.connect(owner).add(0, owner.address)).revertedWith("not contract");
+        await expect(masterChef.connect(owner).add(0, masterChef.address)).revertedWith("not lp");
+        await masterChef.connect(owner).add(0, weth.address);
+        expect(1).equals(await masterChef.connect(owner).poolLength());
+        await masterChef.connect(owner).add(0, lp.address);
+        expect(2).equals(await masterChef.connect(owner).poolLength());
+    });
+
+    it("setWULX per second", async () => {
         await expect(masterChef.connect(someAccount).setwULXPerSecond(ethers.utils.parseEther("2"))).revertedWith("Ownable: caller is not the owner");
         await expect(masterChef.connect(owner).setwULXPerSecond(ethers.utils.parseEther("2"))).revertedWith("setwULXPerSecond: too many wULXs!");
         const newPerSecond = ethers.utils.parseEther("0.1");
@@ -48,7 +57,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(newPerSecond).equals(await masterChef.wULXPerSecond());
     });
 
-    it("add lp token to pools\n", async () => {
+    it("add lp token to pools", async () => {
         await expect(masterChef.connect(someAccount).add(100, lp.address)).revertedWith("Ownable: caller is not the owner");
         await expect(masterChef.connect(owner).add(ethers.utils.parseEther("1"), lp.address)).revertedWith("add: too many alloc points!!");
 
@@ -58,7 +67,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(1).equals(await masterChef.poolLength());
     });
 
-    it("add load of lp tokens to pools\n", async () => {
+    it("add load of lp tokens to pools", async () => {
         const tokensCount = 10;
         for(let i: number = 0; i < tokensCount; i++) {
             const tokenLp = await (await new ERC20Mock__factory(owner).deploy("LP", "LP", ethers.utils.parseEther("100"))).deployed();
@@ -68,7 +77,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(tokensCount).equals(await masterChef.poolLength());
     });
 
-    it("set lp token's alloc point\n", async () => {
+    it("set lp token's alloc point", async () => {
         await masterChef.connect(owner).add(100, lp.address);
 
         await expect(masterChef.connect(someAccount).set(0, ethers.utils.parseEther("1"))).revertedWith("Ownable: caller is not the owner");
@@ -80,12 +89,12 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(1).equals(await masterChef.poolLength());
     });
 
-    it("get multip[lier between blocks\n", async () => {
+    it("get multip[lier between blocks", async () => {
         expect(0).equals(await masterChef.connect(owner).getMultiplier(Date.now(), Date.now()));
         expect(20).equals(await masterChef.connect(owner).getMultiplier(Date.now(), Date.now() + 20));
     });
 
-    it("deposit\n", async () => {
+    it("deposit", async () => {
         await masterChef.connect(owner).add(100, lp.address);
 
         const transferAmount = ethers.utils.parseEther("10");
@@ -103,7 +112,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(expected).equals(await masterChef.connect(someAccount).pendingwULX(0, someAccount.address))
     }); 
 
-    it("deposit and instant withdraw\n", async () => {
+    it("deposit and instant withdraw", async () => {
         await masterChef.connect(owner).add(100, lp.address);
 
         const transferAmount = ethers.utils.parseEther("10");
@@ -120,7 +129,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(expectedWithdraw).equals(await weth.balanceOf(someAccount.address));
     }); 
 
-    it("deposit and withdraw after waiting 1 sec\n", async () => {
+    it("deposit and withdraw after waiting 1 sec", async () => {
         await masterChef.connect(owner).add(100, lp.address);
 
         const transferAmount = ethers.utils.parseEther("10");
@@ -148,7 +157,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(expectedWithdraw).equals(await weth.balanceOf(someAccount.address));
     }); 
 
-    it("deposit and emergency withdraw\n", async () => {
+    it("deposit and emergency withdraw", async () => {
         await masterChef.connect(owner).add(100, lp.address);
 
         const transferAmount = ethers.utils.parseEther("10");
@@ -162,7 +171,7 @@ describe("\x1b[33mMasterChef tests\x1b[0m\n", () => {
         expect(0).equals(await weth.balanceOf(someAccount.address));
     }); 
 
-    it("two deposits and harvest all\n", async () => {
+    it("two deposits and harvest all", async () => {
         await masterChef.connect(owner).add(100, lp.address);
 
         const tokenLp = await (await new ERC20Mock__factory(owner).deploy("LP", "LP", ethers.utils.parseEther("100"))).deployed();

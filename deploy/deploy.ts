@@ -1,4 +1,3 @@
-import { poll } from "ethers/lib/utils";
 import { subtask, task, types } from "hardhat/config";
 import * as Helpers from './helpers';
 
@@ -82,7 +81,7 @@ task("add-pools", "Adding pools")
 
         const lp7 = await factory.getPair(avax, wulx);
         const lp8 = await factory.getPair(usdt, usdc);
-
+        
         const lps = [lp0, lp1, lp2, lp3, lp4, lp5, lp6, lp7, lp8];
         
         for(let i:number = 0; i < lps.length; i++) {

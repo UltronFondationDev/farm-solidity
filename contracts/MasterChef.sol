@@ -81,6 +81,30 @@ contract MasterChef is Ownable {
         startTime = _startTime;
     }
 
+    bytes4 private constant SELECTOR = bytes4(keccak256("balanceOf(address)"));
+    function isContract(address _address) private view returns (bool success) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_address)
+        }
+        success = size > 0;
+    } 
+    function isLpToken(address token) private returns (bool success) {
+        bytes memory data = abi.encodeWithSelector(SELECTOR, address(this));
+
+        assembly {
+            success := call(
+                gas(),            // gas remaining
+                token,         // destination address
+                0,              // no ether
+                add(data, 32),  // input buffer (starts after the first 32 bytes in the `data` array)
+                mload(data),    // input length (loaded from the first 32 bytes in the `data` array)
+                0,              // output buffer
+                0               // output length
+            )
+        }
+    }
+
     function _mintWETH(address _to, uint256 amount) private {
         IwULX(wULX).mint(_to, amount);
     }
@@ -124,6 +148,8 @@ contract MasterChef is Ownable {
 
     // Add a new lp to the pool. Can only be called by the owner.
     function add(uint256 _allocPoint, IERC20 _lpToken) external onlyOwner {
+        require(isContract(address(_lpToken)), "not contract");
+        require(isLpToken(address(_lpToken)), "not lp");
         require(_allocPoint <= MaxAllocPoint, "add: too many alloc points!!");
 
         checkForDuplicate(_lpToken); // ensure you cant add duplicate pools
