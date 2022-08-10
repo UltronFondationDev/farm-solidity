@@ -19,15 +19,17 @@ task('set-pool', "Changing pool's alloc point")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChefAddress = '0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009';
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
-        const poolId = 7;
-        const allocPoint = 0;
+        // await masterChef.set(0, 500, { gasLimit: 2000000 });
+        // await masterChef.set(1, 300, { gasLimit: 2000000 });
+        // await masterChef.set(2,  50, { gasLimit: 2000000 });
+        // await masterChef.set(3, 150, { gasLimit: 2000000 });
 
-        await masterChef.set(poolId, allocPoint);
-        await Helpers.delay(4000);
-        console.log(await masterChef.poolInfo(poolId));
+        for(let i = 0; i < await masterChef.poolLength(); i++) {
+            console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
+        }
 });
 
 task('deposit', "Deposit")
@@ -50,7 +52,7 @@ task("add-pools", "Adding pools")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChefAddress = '0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009';
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
         const factoryAddress = "0xe1F0D4a5123Fd0834Be805d84520DFDCd8CF00b7";
@@ -89,20 +91,24 @@ task("add-pools", "Adding pools")
         }
         console.log('\n');
 
-        const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
+        await masterChef.add(0, lp5, { gasLimit: 3000000 });
+        const i = await masterChef.poolLength() - 1;
+        console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
+
+        // const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
         
-        for(let i:number = 0; i < alloc_points.length; i++) {
-            await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
-            await Helpers.delay(4000);
-            console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
-        }
+        // for(let i:number = 0; i < alloc_points.length; i++) {
+        //     await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
+        //     await Helpers.delay(4000);
+        //     console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
+        // }
     });
 
 task("change-owner", "Transfer ownership")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChefAddress = '0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009';
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
         const owner = '0x4CE535D6E2D47690e33CA646972807BeB264dFBf';
