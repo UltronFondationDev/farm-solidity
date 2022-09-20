@@ -106,7 +106,7 @@ task("add-pools", "Adding pools")
         
         for(let i:number = 0; i < alloc_points.length; i++) {
             await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
-            await Helpers.delay(4000);
+            
             console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
         }
     });
@@ -121,6 +121,6 @@ task("change-owner", "Transfer ownership")
         const owner = '0x4CE535D6E2D47690e33CA646972807BeB264dFBf';
 
         await masterChef.transferOwnership(owner);
-        await Helpers.delay(4000);
+        
         console.log(await masterChef.owner())
     });
