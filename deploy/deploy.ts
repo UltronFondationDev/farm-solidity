@@ -1,17 +1,33 @@
 import { subtask, task, types } from "hardhat/config";
 import * as Helpers from './helpers';
 
+
+require('dotenv').config();
+
+
+const fs = require('fs');
+
+const filename = process.env.DIRNAME + "/deployed_storage.json";
+
+let deployed_storage: any = {};
+try {
+  deployed_storage = JSON.parse(fs.readFileSync(filename).toString().trim());
+} catch (err) {
+}
+
 task("deploy", "Deploy MasterChef")
   .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const wulx = '0x3a4F06431457de873B588846d139EC0d86275d54';
+        const wulx = JSON.parse(fs.readFileSync(filename).toString().trim())["wulx"];
         const wulxPerSecond = ethers.utils.parseEther("6.12");
         const startTime = 1659312000; // 01.08.2022 00:00 UTC
 
         const masterChefFactory = await ethers.getContractFactory("MasterChef", signer);
         const masterChef = await (await masterChefFactory.deploy(wulx, wulxPerSecond, startTime)).deployed();
 
+        deployed_storage["masterChef"] = masterChef.address;
+        fs.writeFileSync(filename, JSON.stringify(deployed_storage));
         console.log("MasterChef deployed to:", masterChef.address);
     });
 
@@ -19,7 +35,7 @@ task('set-pool', "Changing pool's alloc point")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009';
+        const masterChefAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["masterChef"];
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
         // await masterChef.set(0, 500, { gasLimit: 2000000 });
@@ -36,7 +52,7 @@ task('deposit', "Deposit")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0x83227EeaDd0Efd554AE5175DD80CCfAF969E0cAC';
+        const masterChefAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["masterChef"];;
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
         const lpAddress = '0x944086C14Ea9ee4dD6c887ca88B3521a4F2e2F83';
@@ -52,25 +68,25 @@ task("add-pools", "Adding pools")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = '0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009';
+        const masterChefAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["masterChef"];
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
-        const factoryAddress = "0xe1F0D4a5123Fd0834Be805d84520DFDCd8CF00b7";
+        const factoryAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["UniswapV2Factory"];
         const factory = await ethers.getContractAt("UniswapV2Factory", factoryAddress, signer);
 
-        const wbtc  = '0xd2b86a80A8f30b83843e247A50eCDc8D843D87dD';
-        const weth  = '0x2318Bf5809a72AaBAdd15a3453A18e50Bbd651Cd';
-        const bnb   = '0x169ac560852ed79af3D97A8977DCf2EBA54A0488';
-        const avax  = '0x6FE94412953D373Ef464b85637218EFA9EAB8e97';
-        const busd  = '0xc7cAc85C1779d2B8ADA94EFfff49A4754865e2E4';
-        const shib  = '0xb5Bb1911cf6C83C1a6E439951C40C2949B0d907f';
-        const matic = '0x6094a1e3919b302E236B447f45c4eb2DeCE9D9F4';
-        const ftm   = '0xE8Ef8A6FE387C2D10951a63ca8f37dB6B8fA02C1';
-        const dai   = '0x045F0f2DE758743c84b756B1Fca735a0dDf0b8f4';
-        const link  = '0xc8Fb7999d62072E12fE8f3EDcd7821204FCa0344';
-        const usdt  = '0x97FDd294024f50c388e39e73F1705a35cfE87656';
-        const usdc  = '0x3c4E0FdeD74876295Ca36F62da289F69E3929cc4';
-        const wulx  = '0x3a4F06431457de873B588846d139EC0d86275d54';
+        const wbtc  = JSON.parse(fs.readFileSync(filename).toString().trim())["wBTC"];
+        const weth  = JSON.parse(fs.readFileSync(filename).toString().trim())["wETH"];
+        const bnb   = JSON.parse(fs.readFileSync(filename).toString().trim())["bnb"];
+        const avax  = JSON.parse(fs.readFileSync(filename).toString().trim())["avax"];
+        const busd  = JSON.parse(fs.readFileSync(filename).toString().trim())["bUSD"];
+        const shib  = JSON.parse(fs.readFileSync(filename).toString().trim())["shib"];
+        const matic = JSON.parse(fs.readFileSync(filename).toString().trim())["matic"];
+        const ftm   = JSON.parse(fs.readFileSync(filename).toString().trim())["ftm"];
+        const dai   = JSON.parse(fs.readFileSync(filename).toString().trim())["dai"];
+        const link  = JSON.parse(fs.readFileSync(filename).toString().trim())["link"];
+        const usdt  = JSON.parse(fs.readFileSync(filename).toString().trim())["uUSDT"];
+        const usdc  = JSON.parse(fs.readFileSync(filename).toString().trim())["uUSDC"];
+        const wulx  = JSON.parse(fs.readFileSync(filename).toString().trim())["wulx"];
 
         const lp0 = await factory.getPair(usdt, wulx);
         const lp1 = await factory.getPair(usdc, wulx);
@@ -85,23 +101,14 @@ task("add-pools", "Adding pools")
         const lp8 = await factory.getPair(usdt, usdc);
         
         const lps = [lp0, lp1, lp2, lp3, lp4, lp5, lp6, lp7, lp8];
+
+        const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
         
-        for(let i:number = 0; i < lps.length; i++) {
-            console.log(lps[i]);
+        for(let i:number = 0; i < alloc_points.length; i++) {
+            await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
+            await Helpers.delay(4000);
+            console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
         }
-        console.log('\n');
-
-        await masterChef.add(0, lp5, { gasLimit: 3000000 });
-        const i = await masterChef.poolLength() - 1;
-        console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
-
-        // const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
-        
-        // for(let i:number = 0; i < alloc_points.length; i++) {
-        //     await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
-        //     await Helpers.delay(4000);
-        //     console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
-        // }
     });
 
 task("change-owner", "Transfer ownership")
