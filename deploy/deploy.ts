@@ -88,21 +88,21 @@ task("add-pools", "Adding pools")
         const usdc  = JSON.parse(fs.readFileSync(filename).toString().trim())["uUSDC"];
         const wulx  = JSON.parse(fs.readFileSync(filename).toString().trim())["wulx"];
 
-        const lp0 = await factory.getPair(usdt, wulx);
-        const lp1 = await factory.getPair(usdc, wulx);
-        const lp2 = await factory.getPair(bnb, wulx);
-        const lp3 = await factory.getPair(matic, wulx);
+        const lp0 = await factory.getPair(wulx, usdt);
+        const lp1 = await factory.getPair(wulx, usdc);
+        const lp2 = await factory.getPair(usdc,usdt);
+        const lp3 = await factory.getPair(weth, wulx);
+        const lp4 = await factory.getPair(wulx, wbtc);
 
-        const lp4 = await factory.getPair(ftm, wulx);
-        const lp5 = await factory.getPair(weth, wulx);
-        const lp6 = await factory.getPair(wbtc, wulx);
+        const lp5 = await factory.getPair(bnb, wulx);
+        const lp6 = await factory.getPair(matic, wulx);
+        const lp7 = await factory.getPair(ftm, wulx);
+        const lp8 = await factory.getPair(avax, wulx);
 
-        const lp7 = await factory.getPair(avax, wulx);
-        const lp8 = await factory.getPair(usdt, usdc);
         
         const lps = [lp0, lp1, lp2, lp3, lp4, lp5, lp6, lp7, lp8];
 
-        const alloc_points = [2500, 1800, 1100, 1000, 900, 800, 800, 600, 500];
+        const alloc_points = [3470, 1928, 386, 1157, 771, 2289, 800, 600, 500];
         
         for(let i:number = 0; i < alloc_points.length; i++) {
             await masterChef.add(alloc_points[i], lps[i], { gasLimit: 3000000 });
