@@ -19,14 +19,14 @@ task("deploy", "Deploy MasterChef")
   .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const wulx = JSON.parse(fs.readFileSync(filename).toString().trim())["wulx"];
+        const wulx = JSON.parse(fs.readFileSync(filename).toString().trim())['tokens']["wULX"];
         const wulxPerSecond = ethers.utils.parseEther("6.12");
         const startTime = 1659312000; // 01.08.2022 00:00 UTC
 
         const masterChefFactory = await ethers.getContractFactory("MasterChef", signer);
         const masterChef = await (await masterChefFactory.deploy(wulx, wulxPerSecond, startTime)).deployed();
 
-        deployed_storage["masterChef"] = masterChef.address;
+        deployed_storage["functional_contracts"]["masterChef"] = masterChef.address;
         fs.writeFileSync(filename, JSON.stringify(deployed_storage));
         console.log("MasterChef deployed to:", masterChef.address);
     });
@@ -68,25 +68,25 @@ task("add-pools", "Adding pools")
     .setAction(async (taskArgs, {ethers}) => {
         const signer = (await ethers.getSigners())[0];
 
-        const masterChefAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["masterChef"];
+        const masterChefAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["functional_contracts"]["masterChef"];
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
-        const factoryAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["UniswapV2Factory"];
+        const factoryAddress = JSON.parse(fs.readFileSync(filename).toString().trim())["functional_contracts"]["UniswapV2Factory"];
         const factory = await ethers.getContractAt("UniswapV2Factory", factoryAddress, signer);
 
-        const wbtc  = JSON.parse(fs.readFileSync(filename).toString().trim())["wBTC"];
-        const weth  = JSON.parse(fs.readFileSync(filename).toString().trim())["wETH"];
-        const bnb   = JSON.parse(fs.readFileSync(filename).toString().trim())["bnb"];
-        const avax  = JSON.parse(fs.readFileSync(filename).toString().trim())["avax"];
-        const busd  = JSON.parse(fs.readFileSync(filename).toString().trim())["bUSD"];
-        const shib  = JSON.parse(fs.readFileSync(filename).toString().trim())["shib"];
-        const matic = JSON.parse(fs.readFileSync(filename).toString().trim())["matic"];
-        const ftm   = JSON.parse(fs.readFileSync(filename).toString().trim())["ftm"];
-        const dai   = JSON.parse(fs.readFileSync(filename).toString().trim())["dai"];
-        const link  = JSON.parse(fs.readFileSync(filename).toString().trim())["link"];
-        const usdt  = JSON.parse(fs.readFileSync(filename).toString().trim())["uUSDT"];
-        const usdc  = JSON.parse(fs.readFileSync(filename).toString().trim())["uUSDC"];
-        const wulx  = JSON.parse(fs.readFileSync(filename).toString().trim())["wulx"];
+        const wbtc  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["wBTC"];
+        const weth  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["wETH"];
+        const bnb   = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["BNB"];
+        const avax  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["AVAX"];
+        const busd  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["BUSD"];
+        const shib  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["SHIB"];
+        const matic = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["MATIC"];
+        const ftm   = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["FTM"];
+        const dai   = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["DAI"];
+        const link  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["LINK"];
+        const usdt  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["uUSDT"];
+        const usdc  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["uUSDC"];
+        const wulx  = JSON.parse(fs.readFileSync(filename).toString().trim())["tokens"]["wULX"];
 
         const lp0 = await factory.getPair(wulx, usdt);
         const lp1 = await factory.getPair(wulx, usdc);
@@ -98,6 +98,7 @@ task("add-pools", "Adding pools")
         const lp6 = await factory.getPair(matic, wulx);
         const lp7 = await factory.getPair(ftm, wulx);
         const lp8 = await factory.getPair(avax, wulx);
+
 
         
         const lps = [lp0, lp1, lp2, lp3, lp4, lp5, lp6, lp7, lp8];
