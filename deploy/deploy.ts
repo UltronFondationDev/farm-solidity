@@ -22,11 +22,11 @@ task('set-pool', "Changing pool's alloc point")
         const masterChefAddress = '0x51D62Ca04e955AbB7f8BB380FD6f93E1F7d5E5fC'; // 0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
-        // await masterChef.set(0,  134, { gasLimit: 2000000 });
+        // await masterChef.set(0,  132, { gasLimit: 2000000 });
         // await masterChef.set(1,  65, { gasLimit: 2000000 });
         // await masterChef.set(2,  2, { gasLimit: 2000000 });
         // await masterChef.set(3,  35, { gasLimit: 2000000 });
-        // await masterChef.set(4,  121, { gasLimit: 2000000 });
+        // await masterChef.set(4,  115, { gasLimit: 2000000 });
         // await masterChef.set(5,  2067, { gasLimit: 2000000 });
         // await masterChef.set(8,  13, { gasLimit: 2000000 });
         // await masterChef.set(9,  13, { gasLimit: 2000000 });
@@ -34,7 +34,7 @@ task('set-pool', "Changing pool's alloc point")
         // await masterChef.set(11,  9, { gasLimit: 2000000 });
         // await masterChef.set(12,  9, { gasLimit: 2000000 });
         // await masterChef.set(13,  11, { gasLimit: 2000000 });
-        // await masterChef.set(14,  0, { gasLimit: 2000000 });
+        // await masterChef.set(14,  9, { gasLimit: 2000000 });
         // await masterChef.set(15,  13, { gasLimit: 2000000 });
 
         // await Helpers.delay(4000);
