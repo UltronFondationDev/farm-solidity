@@ -1,5 +1,6 @@
 import { subtask, task, types } from "hardhat/config";
 import * as Helpers from './helpers';
+import { BigNumber } from "ethers";
 
 task("deploy", "Deploy MasterChef")
   .setAction(async (taskArgs, {ethers}) => {
@@ -22,26 +23,39 @@ task('set-pool', "Changing pool's alloc point")
         const masterChefAddress = '0x51D62Ca04e955AbB7f8BB380FD6f93E1F7d5E5fC'; // 0x9F8eFbc1A35f9D5941efEA8F8aD30703e667F009
         const masterChef = await ethers.getContractAt("MasterChef", masterChefAddress, signer);
 
-        // await masterChef.set(0,  132, { gasLimit: 2000000 });
-        // await masterChef.set(1,  65, { gasLimit: 2000000 });
-        // await masterChef.set(2,  2, { gasLimit: 2000000 });
-        // await masterChef.set(3,  35, { gasLimit: 2000000 });
-        // await masterChef.set(4,  115, { gasLimit: 2000000 });
-        // await masterChef.set(5,  2067, { gasLimit: 2000000 });
-        // await masterChef.set(8,  13, { gasLimit: 2000000 });
-        // await masterChef.set(9,  13, { gasLimit: 2000000 });
-        // await masterChef.set(10,  9, { gasLimit: 2000000 });
-        // await masterChef.set(11,  9, { gasLimit: 2000000 });
-        // await masterChef.set(12,  9, { gasLimit: 2000000 });
-        // await masterChef.set(13,  11, { gasLimit: 2000000 });
-        // await masterChef.set(14,  9, { gasLimit: 2000000 });
-        // await masterChef.set(15,  13, { gasLimit: 2000000 });
+        console.log(await masterChef.wULXPerSecond())
+        
+        await Helpers.delay(4000);
+
+        const newWulxPerSec = BigNumber.from(ethers.utils.parseEther("0.997"));
+        await masterChef.setwULXPerSecond(newWulxPerSec, { gasLimit: 2000000 });
+
+        await Helpers.delay(4000);
+
+        console.log(await masterChef.wULXPerSecond())
+
+        // Legacy(first 11 months)
+
+        // await masterChef.set(0,  763, { gasLimit: 2000000 });
+        // await masterChef.set(1,  375, { gasLimit: 2000000 });
+        // await masterChef.set(2,  13, { gasLimit: 2000000 });
+        // await masterChef.set(3,  200, { gasLimit: 2000000 });
+        // await masterChef.set(4,  663, { gasLimit: 2000000 });
+        // await masterChef.set(5,  0, { gasLimit: 2000000 });
+        // await masterChef.set(8,  75, { gasLimit: 2000000 });
+        // await masterChef.set(9,  75, { gasLimit: 2000000 });
+        // await masterChef.set(10,  50, { gasLimit: 2000000 });
+        // await masterChef.set(11,  50, { gasLimit: 2000000 });
+        // await masterChef.set(12,  50, { gasLimit: 2000000 });
+        // await masterChef.set(13,  63, { gasLimit: 2000000 });
+        // await masterChef.set(14,  50, { gasLimit: 2000000 });
+        // await masterChef.set(15,  75, { gasLimit: 2000000 });
 
         // await Helpers.delay(4000);
 
-        for(let i = 0; i < await masterChef.poolLength(); i++) {
-            console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
-        }
+        // for(let i = 0; i < await masterChef.poolLength(); i++) {
+        //     console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
+        // }
 });
 
 task('deposit', "Deposit")
