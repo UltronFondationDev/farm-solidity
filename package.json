@@ -16,6 +16,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.0.0",
     "@openzeppelin/test-helpers": "^0.5.6",
+    "@poanet/solidity-flattener": "^3.0.9",
     "@truffle/hdwallet-provider": "^1.2.6",
     "@typechain/hardhat": "^6.1.2",
     "dotenv": "^8.2.0",
