@@ -25,9 +25,9 @@ task('set-pool', "Changing pool's alloc point")
 
         console.log(await masterChef.wULXPerSecond())
         
-        // await Helpers.delay(4000);
+        // afix(wait Helpers.delay(4000);
 
-        // const newWulxPerSec = BigNumber.from(ethers.utils.parseEther("0.225"));
+        // const newWulxPerSec = BigNumber.from(ethers.utils.parseEther("0.180"));
         // await masterChef.setwULXPerSecond(newWulxPerSec, { gasLimit: 2000000 });
 
         // await Helpers.delay(4000);
