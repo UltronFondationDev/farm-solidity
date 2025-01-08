@@ -25,9 +25,9 @@ task('set-pool', "Changing pool's alloc point")
 
         console.log(await masterChef.wULXPerSecond())
         
-        // afix(wait Helpers.delay(4000);
+        // await Helpers.delay(4000);
 
-        // const newWulxPerSec = BigNumber.from(ethers.utils.parseEther("0.180"));
+        // const newWulxPerSec = BigNumber.from(ethers.utils.parseEther("0.154"));
         // await masterChef.setwULXPerSecond(newWulxPerSec, { gasLimit: 2000000 });
 
         // await Helpers.delay(4000);
@@ -36,9 +36,9 @@ task('set-pool', "Changing pool's alloc point")
 
         // Legacy(first 11 months)
 
-        // await masterChef.set(0,  963, { gasLimit: 2000000 });
+        // await masterChef.set(0,  583, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(1,  700, { gasLimit: 2000000 });
+        // await masterChef.set(1,  300, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
         // await masterChef.set(2,  13, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
@@ -47,21 +47,23 @@ task('set-pool', "Changing pool's alloc point")
         // await masterChef.set(4,  38, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
         // await masterChef.set(5,  0, { gasLimit: 2000000 });
-        // await masterChef.set(8,  100, { gasLimit: 2000000 });
+        // await masterChef.set(8,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(9,  100, { gasLimit: 2000000 });
+        // await masterChef.set(9,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(10,  75, { gasLimit: 2000000 });
+        // await masterChef.set(10,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(11,  75, { gasLimit: 2000000 });
+        // await masterChef.set(11,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(12,  75, { gasLimit: 2000000 });
+        // await masterChef.set(12,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(13,  88, { gasLimit: 2000000 });
+        // await masterChef.set(13,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(14,  75, { gasLimit: 2000000 });
+        // await masterChef.set(14,  25, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
-        // await masterChef.set(15,  100, { gasLimit: 2000000 });
+        // await masterChef.set(15,  25, { gasLimit: 2000000 });
+        // await Helpers.delay(2000)
+        // await masterChef.set(16,  1255, { gasLimit: 2000000 });
         // await Helpers.delay(2000)
 
         // await Helpers.delay(4000);
@@ -110,6 +112,7 @@ task("add-pools", "Adding pools")
         const usdt  = '0x97FDd294024f50c388e39e73F1705a35cfE87656';
         const usdc  = '0x3c4E0FdeD74876295Ca36F62da289F69E3929cc4';
         const wulx  = '0x3a4F06431457de873B588846d139EC0d86275d54';
+        const ak1111  = '0x52b502e0c7986A3c705DCf411E768e5cE90c87ec';
 
         const lp0 = await factory.getPair(usdt, wulx);
         const lp1 = await factory.getPair(usdc, wulx);
@@ -122,6 +125,7 @@ task("add-pools", "Adding pools")
 
         const lp7 = await factory.getPair(avax, wulx);
         const lp8 = await factory.getPair(usdt, usdc);
+        const lp9 = await factory.getPair(ak1111, usdt);
         
         const lps = [lp0, lp1, lp2, lp3, lp4, lp5, lp6, lp7, lp8];
         
@@ -130,7 +134,7 @@ task("add-pools", "Adding pools")
         }
         console.log('\n');
 
-        await masterChef.add(0, lp5, { gasLimit: 3000000 });
+        await masterChef.add(0, lp9, { gasLimit: 3000000 });
         const i = await masterChef.poolLength() - 1;
         console.log(`POOL ${i} | ${await masterChef.poolInfo(i)}`);
 
